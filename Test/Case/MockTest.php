@@ -41,6 +41,16 @@ class MockTest extends CakeTestCase
     /**
      *
      */
+    public function testMethodsNull()
+    {
+        $target = $this->getMock('Foo', null, array());
+        $this->assertSame('hoge', $target->functionA(), 'mockのmethodsがnullなので処理そのまま');
+        $this->assertSame('fuga', $target->functionB(), 'mockのmethodsがnullなので処理そのまま');
+    }
+
+    /**
+     *
+     */
     public function testMethodsEmpty()
     {
         $target = $this->getMock('Foo', array(), array());
