@@ -29,7 +29,7 @@ class MockTest extends CakeTestCase
 {
 
     /**
-     *
+     * mockを使わずに元のclassの挙動を確認するテスト
      */
     public function testWithoutMock()
     {
@@ -39,7 +39,7 @@ class MockTest extends CakeTestCase
     }
 
     /**
-     *
+     * getMockの第二引数にnullを渡すテスト
      */
     public function testMethodsNull()
     {
@@ -49,7 +49,7 @@ class MockTest extends CakeTestCase
     }
 
     /**
-     *
+     * getMockの第二引数に空配列を渡すテスト
      */
     public function testMethodsEmpty()
     {
@@ -59,54 +59,32 @@ class MockTest extends CakeTestCase
     }
 
     /**
-     *
+     * ひとつだけ関数名を渡すテスト
      */
     public function testMethodsOneSide()
     {
         $target = $this->getMock('Foo', array('functionA'), array());
-        $this->assertSame(null, $target->functionA(), '宣言したmethodを再定義していない');
+        $this->assertSame(null, $target->functionA(), 'method宣言するも関数の再定義なし');
         $this->assertSame('fuga', $target->functionB(),
-            '一つでもmethodを定義していれば、ほかは元の関数が生きている');
+            '一つでもmethodを定義していれば、ほかは元の関数のまま');
 
         $target2 = $this->getMock('Foo', array('functionB'), array());
         $this->assertSame('hoge', $target2->functionA(), '元関数が生き');
-        $this->assertSame(null, $target2->functionB(), 'method宣言するも関数');
+        $this->assertSame(null, $target2->functionB(), 'method宣言するも関数の再定義なし');
     }
 
     /**
-     *
+     * ひとつだけ関数名を渡し、再定義
      */
     public function testWithMock()
     {
-        $target = $this->getMock('Foo', array(), array());
-        $this->assertSame(null, $target->functionA(), 'mockのmethodsが空なので処理消える');
-        $this->assertSame(null, $target->functionB(), 'mockのmethodsが空なので処理消える');
-
-        /*
-        $target->expects($this->once())
-            ->method('functionA')
-            ->will($this->returnValue("HOGE"));
-
-        $this->assertSame('HOGE', $target->functionA());
-        $this->assertSame(null, $target->functionB());
-        */
-    }
-
-    /**
-     *
-     */
-    public function testWithMockSideA()
-    {
         $target = $this->getMock('Foo', array('functionA'), array());
-        $this->assertSame(null, $target->functionA());
-        $this->assertSame('fuga', $target->functionB());
-
         $target->expects($this->once())
                ->method('functionA')
                ->will($this->returnValue("HOGE"));
 
-        $this->assertSame('HOGE', $target->functionA());
-        $this->assertSame('fuga', $target->functionB());
+        $this->assertSame('HOGE', $target->functionA(), 'functionAは再定義されたので返り値が変わる');
+        $this->assertSame('fuga', $target->functionB(), 'functionBはそのまま');
     }
 
 }
