@@ -44,8 +44,10 @@ class MockTest extends CakeTestCase
     public function testMethodsNull()
     {
         $target = $this->getMock('Foo', null, array());
-        $this->assertSame('hoge', $target->functionA(), 'mockのmethodsがnullなので処理そのまま');
-        $this->assertSame('fuga', $target->functionB(), 'mockのmethodsがnullなので処理そのまま');
+        $this->assertSame('hoge', $target->functionA(),
+            'mockのmethodsがnullなので処理そのまま');
+        $this->assertSame('fuga', $target->functionB(),
+            'mockのmethodsがnullなので処理そのまま');
     }
 
     /**
@@ -83,8 +85,29 @@ class MockTest extends CakeTestCase
                ->method('functionA')
                ->will($this->returnValue("HOGE"));
 
-        $this->assertSame('HOGE', $target->functionA(), 'functionAは再定義されたので返り値が変わる');
+        $this->assertSame('HOGE', $target->functionA(),
+            'functionAは再定義されたので返り値が変わる');
         $this->assertSame('fuga', $target->functionB(), 'functionBはそのまま');
+    }
+
+    /**
+     * 関数を指定せずに、戻り値を再定義するテスト
+     */
+    public function testNoDeclare()
+    {
+        $target = $this->getMock('Foo', array(), array());
+        $target->expects($this->once())
+               ->method('functionA')
+               ->will($this->returnValue("HOGE"));
+        $this->assertSame('HOGE', $target->functionA(),
+            '関数名を宣言していないが、functionAの戻り値は再定義されたので返り値が変わる');
+
+        $target->expects($this->exactly(2))
+               ->method('functionB');
+        $target->functionB();
+        $actual = $target->functionB();
+        $this->assertSame(null, $actual,
+            '関数名を宣言せず、戻り値も再定義せず');
     }
 
 }
