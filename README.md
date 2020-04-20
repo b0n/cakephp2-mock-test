@@ -7,3 +7,4 @@ phpunitのmockの使い方をメモします
 下記を参考にしました
 
 * https://phpunit.de/manual/3.7/en/test-doubles.html
+* https://qiita.com/t_ishida/items/1176b43b548a8c467a59
