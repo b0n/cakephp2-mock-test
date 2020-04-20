@@ -23,9 +23,9 @@ class Foo
 }
 
 /**
- * Class MockTest
+ * Class StubTest
  */
-class MockTest extends CakeTestCase
+class StubTest extends CakeTestCase
 {
 
     /**
@@ -108,6 +108,111 @@ class MockTest extends CakeTestCase
         $actual = $target->functionB();
         $this->assertSame(null, $actual,
             '関数名を宣言せず、戻り値も再定義せず');
+    }
+
+    /**
+     * 戻り値に関数の引数を返すテスト
+     */
+    public function testReturnArgument()
+    {
+        $target = $this->getMock('Foo', array(), array());
+        $target->expects($this->any())
+               ->method('functionA')
+               ->will($this->returnArgument(0));
+        $this->assertSame('HOGE', $target->functionA('HOGE'), '戻り値に引数を返す');
+        $this->assertSame('PIYO', $target->functionA('PIYO'), '戻り値に引数を返す');
+    }
+
+    /**
+     * 戻り値に自身の返すテスト
+     */
+    public function testReturnSelf()
+    {
+        $target = $this->getMock('Foo', array(), array());
+        $target->expects($this->any())
+               ->method('functionA')
+               ->will($this->returnSelf());
+        $this->assertSame($target, $target->functionA(), '戻り値に自身のインスタンスを返す');
+    }
+
+    /**
+     * 戻り値を可変にできるテスト
+     */
+    public function testReturnValueMapStub()
+    {
+        $stub = $this->getMock('Foo');
+
+        $map = array(
+            array('a', 'b'),
+            array('a', 'b', 'c'),
+            array('a', 'b', 'c', 'd'),
+            array('e', 'f', 'g', 'h'),
+        );
+
+        $stub->expects($this->any())
+             ->method('functionA')
+             ->will($this->returnValueMap($map));
+
+        $this->assertEquals('b', $stub->functionA('a'));
+        $this->assertEquals('c', $stub->functionA('a', 'b'));
+        $this->assertEquals('d', $stub->functionA('a', 'b', 'c'));
+        $this->assertEquals('h', $stub->functionA('e', 'f', 'g'));
+    }
+
+    /**
+     * 戻り値に関数を指定するテスト
+     */
+    public function testReturnCallbackStub()
+    {
+        $stub = $this->getMock('Foo');
+
+        $stub->expects($this->any())
+             ->method('functionA')
+             ->will($this->returnCallback('ucwords'));
+
+        $this->assertEquals('Abc Def', $stub->functionA('abc def'),
+            'ucwordsで文言の先頭の文字が大文字に');
+
+        $stub->expects($this->any())
+             ->method('functionB')
+             ->will($this->returnCallback('str_repeat'));
+
+        $this->assertEquals('aaa', $stub->functionB('a', 3),
+            'str_repeatでaが3回繰り返される');
+    }
+
+    /**
+     * 戻り値を順番に指定できるテスト
+     */
+    public function testOnConsecutiveCallsStub()
+    {
+        $stub = $this->getMock('Foo');
+
+        $stub->expects($this->any())
+             ->method('functionA')
+             ->will($this->onConsecutiveCalls(2, 3, 5, 'a'));
+
+        $this->assertEquals(2, $stub->functionA());
+        $this->assertEquals(3, $stub->functionA());
+        $this->assertEquals(5, $stub->functionA());
+        $this->assertEquals('a', $stub->functionA());
+    }
+
+    /**
+     * Exceptionを返すテスト
+     *
+     * @expectedException Exception
+     * @expectedExceptionMessage This is exception.
+     */
+    public function testThrowExceptionStub()
+    {
+        $stub = $this->getMock('Foo');
+
+        $stub->expects($this->any())
+             ->method('functionA')
+             ->will($this->throwException(new Exception('This is exception.')));
+
+        $stub->functionA();
     }
 
 }
